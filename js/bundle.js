@@ -189,3 +189,122 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  const filterItems = document.querySelectorAll('.filter-item');
+
+  filterItems.forEach(item => {
+    item.addEventListener('click', function() {
+      filterItems.forEach(filter => {
+        filter.classList.remove('active');
+      });
+
+      this.classList.add('active');
+    });
+  });
+});
+
+
+class TabsManager {
+  constructor(containerSelector) {
+    this.container = document.querySelector(containerSelector);
+    if (!this.container) return;
+
+    this.tabButtons = this.container.querySelectorAll('.nav-button');
+    this.tabPanels = this.container.querySelectorAll('.tab-panel');
+    this.isAnimating = false;
+    this.animationDuration = 200;
+
+    this.init();
+  }
+
+  init() {
+    if (this.tabButtons.length === 0 || this.tabPanels.length === 0) return;
+
+    this.tabButtons[1].classList.add('active');
+    this.tabPanels[1].classList.add('active');
+
+    this.tabButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        if (this.isAnimating) return;
+
+        const button = e.currentTarget;
+        this.switchTab(parseInt(button.dataset.tabId));
+      });
+    });
+  }
+
+  async switchTab(targetTabId) {
+    const targetButton = this.container.querySelector(`.nav-button[data-tab-id="${targetTabId}"]`);
+    const targetPanel = this.container.querySelector(`.tab-panel[data-tab-id="${targetTabId}"]`);
+
+    if (!targetButton || !targetPanel) return;
+    if (targetButton.classList.contains('active')) return;
+
+    this.isAnimating = true;
+
+    const activePanel = this.container.querySelector('.tab-panel.active');
+
+    if (activePanel) {
+      activePanel.style.transition = `opacity ${this.animationDuration}ms ease, visibility ${this.animationDuration}ms ease`;
+      activePanel.style.opacity = '0';
+      activePanel.style.visibility = 'hidden';
+
+      await this.wait(this.animationDuration);
+
+      activePanel.classList.remove('active');
+      activePanel.style.transition = '';
+      activePanel.style.opacity = '';
+      activePanel.style.visibility = '';
+    }
+
+    this.tabButtons.forEach(btn => btn.classList.remove('active'));
+
+    targetButton.classList.add('active');
+
+    targetPanel.classList.add('active');
+    targetPanel.style.transition = `opacity ${this.animationDuration}ms ease, visibility ${this.animationDuration}ms ease`;
+    targetPanel.style.opacity = '0';
+    targetPanel.style.visibility = 'visible';
+
+    await this.wait(10);
+    targetPanel.style.opacity = '1';
+
+    await this.wait(this.animationDuration);
+
+    targetPanel.style.transition = '';
+    targetPanel.style.opacity = '';
+    targetPanel.style.visibility = '';
+
+    this.isAnimating = false;
+  }
+
+  wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  new TabsManager('.tabs-block');
+});
+
+function checkVisibility() {
+  const blocks = document.querySelectorAll('.animate-section');
+
+  blocks.forEach(block => {
+    const rect = block.getBoundingClientRect();
+    const isVisible = rect.top <= window.innerHeight && rect.bottom >= 0;
+
+    if (isVisible) {
+      setTimeout(() => {
+        block.classList.add('animated');
+      }, 500);
+    } else {
+      block.classList.remove('animated');
+    }
+  });
+}
+
+window.addEventListener('scroll', checkVisibility);
+window.addEventListener('load', checkVisibility);
