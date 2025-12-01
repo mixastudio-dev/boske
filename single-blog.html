@@ -15,20 +15,23 @@
   />
   <title></title>
   <script defer src="js/bundle.js"></script>
-  <link href="css/style.min.css" rel="stylesheet">
-</head>
+  <link href="css/style.min.css" rel="stylesheet"></head>
 <body>
 
 <header class="header">
   <div class="container">
     <div class="row">
-      <div class="col-lg-2 col-md-6 col-m-12">
+      <div class="col-lg-2 col-md-6 col-m-6">
         <a href="index.html" class="logo">
           <img src="./img/logo.webp" alt="">
         </a>
       </div>
       <div class="col-lg-7 col-md-6 col-m-12">
         <nav class="header-nav">
+          <a href="index.html" class="logo logo-mobile">
+            <img src="./img/logo.webp" alt="">
+          </a>
+          <button class="close-menu-button"></button>
           <ul class="main-menu">
             <li>
               <a href="#">Каталог</a>
@@ -49,10 +52,12 @@
               <a href="#">Журнал</a>
             </li>
           </ul>
+          <a data-src="modal-form" href="#" class="btn btn-white btn-mobile open-modal-dialog">Обсудить проект</a>
         </nav>
       </div>
-      <div class="col-lg-3 col-md-6 col-m-12">
+      <div class="col-lg-3 col-md-6 col-m-6">
         <a href="#" class="btn btn-header open-modal-dialog" data-src="modal-form">Обсудить проект</a>
+        <button class="mobile-menu-btn"></button>
       </div>
     </div>
   </div>

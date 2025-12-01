@@ -15,20 +15,23 @@
   />
   <title></title>
   <script defer src="js/bundle.js"></script>
-  <link href="css/style.min.css" rel="stylesheet">
-</head>
+  <link href="css/style.min.css" rel="stylesheet"></head>
 <body>
 
 <header class="header">
   <div class="container">
     <div class="row">
-      <div class="col-lg-2 col-md-6 col-m-12">
+      <div class="col-lg-2 col-md-6 col-m-6">
         <a href="index.html" class="logo">
           <img src="./img/logo.webp" alt="">
         </a>
       </div>
       <div class="col-lg-7 col-md-6 col-m-12">
         <nav class="header-nav">
+          <a href="index.html" class="logo logo-mobile">
+            <img src="./img/logo.webp" alt="">
+          </a>
+          <button class="close-menu-button"></button>
           <ul class="main-menu">
             <li>
               <a href="#">Каталог</a>
@@ -49,10 +52,12 @@
               <a href="#">Журнал</a>
             </li>
           </ul>
+          <a data-src="modal-form" href="#" class="btn btn-white btn-mobile open-modal-dialog">Обсудить проект</a>
         </nav>
       </div>
-      <div class="col-lg-3 col-md-6 col-m-12">
+      <div class="col-lg-3 col-md-6 col-m-6">
         <a href="#" class="btn btn-header open-modal-dialog" data-src="modal-form">Обсудить проект</a>
+        <button class="mobile-menu-btn"></button>
       </div>
     </div>
   </div>
@@ -63,7 +68,7 @@
 
 
 
-<section class="main-banner banner-page animate-section" style="background-image: url(./img/main-banner-back.webp)">
+<section class="main-banner banner-page banner-page-blog animate-section" style="background-image: url(./img/main-banner-back.webp)">
   <div class="container">
     <div class="banner-content">
       <h1>ЖУРНАЛ</h1>
@@ -78,26 +83,20 @@
 <section class="blog-main animate-section">
   <div class="container">
     <div class="filters-wrapper">
-      <div class="filter-item active">
+      <div class="filter-item">
         <span>Все</span>
       </div>
       <div class="filter-item">
-        <span>Кухни</span>
+        <span>Истории</span>
       </div>
       <div class="filter-item">
-        <span>Гардеробные</span>
+        <span>Материалы и фактуры</span>
       </div>
       <div class="filter-item">
-        <span>ТВ-зоны</span>
+        <span>Решения и идеи</span>
       </div>
       <div class="filter-item">
-        <span>Детские</span>
-      </div>
-      <div class="filter-item">
-        <span>Прихожие</span>
-      </div>
-      <div class="filter-item">
-        <span>Ванные</span>
+        <span>Производство</span>
       </div>
     </div>
     <div class="row">

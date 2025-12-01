@@ -15,20 +15,22 @@
   />
   <title></title>
   <script defer src="js/bundle.js"></script>
-  <link href="css/style.min.css" rel="stylesheet">
-</head>
+  <link href="css/style.min.css" rel="stylesheet"></head>
 <body>
-
 <header class="header">
   <div class="container">
     <div class="row">
-      <div class="col-lg-2 col-md-6 col-m-12">
+      <div class="col-lg-2 col-md-6 col-m-6">
         <a href="index.html" class="logo">
           <img src="./img/logo.webp" alt="">
         </a>
       </div>
       <div class="col-lg-7 col-md-6 col-m-12">
         <nav class="header-nav">
+          <a href="index.html" class="logo logo-mobile">
+            <img src="./img/logo.webp" alt="">
+          </a>
+          <button class="close-menu-button"></button>
           <ul class="main-menu">
             <li>
               <a href="#">Каталог</a>
@@ -49,10 +51,12 @@
               <a href="#">Журнал</a>
             </li>
           </ul>
+          <a data-src="modal-form" href="#" class="btn btn-white btn-mobile open-modal-dialog">Обсудить проект</a>
         </nav>
       </div>
-      <div class="col-lg-3 col-md-6 col-m-12">
+      <div class="col-lg-3 col-md-6 col-m-6">
         <a href="#" class="btn btn-header open-modal-dialog" data-src="modal-form">Обсудить проект</a>
+        <button class="mobile-menu-btn"></button>
       </div>
     </div>
   </div>
@@ -63,7 +67,7 @@
 
 
 
-<section class="main-banner banner-page animate-section" style="background-image: url(./img/production-banner-back.webp)">
+<section class="main-banner banner-page banner-page-production animate-section" style="background-image: url(./img/production-banner-back.webp)">
   <div class="container">
     <div class="banner-content">
       <h1>Производство</h1>
@@ -77,8 +81,9 @@
     <div class="description-top">
       <p>Как создается мебель BoSKE — шаг за шагом</p>
     </div>
-    <div class="video-block-wrapper">
-      <video autoplay loop>
+    <div class="video-block-wrapper custom-video">
+      <button class="button-play-video"></button>
+      <video>
         <source src="./img/adobestock-515194866_Jt2tm8rv.mp4">
       </video>
     </div>
@@ -107,7 +112,7 @@
   </div>
 </section>
 
-<section class="callback-section animate-section" style="background-image: url(./img/callback-back.webp)">
+<section class="callback-section callback-section-mb0 animate-section" style="background-image: url(./img/callback-back.webp)">
   <div class="container">
     <div class="row">
       <div class="col-lg-6 col-md-12 col-m-12">
@@ -167,7 +172,6 @@
     </div>
   </div>
 </section>
-
 
 <!--footer.html-->
 </main>

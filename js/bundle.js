@@ -168,7 +168,6 @@ document.addEventListener('DOMContentLoaded', function() {
     playButton.addEventListener('click', function() {
       if (video.paused) {
         video.play();
-        video.setAttribute('controls', 'true');
         playButton.style.display = 'none';
       }
     });
@@ -178,9 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     video.addEventListener('ended', function() {
-      playButton.style.display = 'block';
-      video.removeAttribute('controls');
-    });
+      playButton.style.display = 'block';});
 
     video.addEventListener('click', function() {
       if (!video.paused) {
@@ -285,26 +282,87 @@ class TabsManager {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  new TabsManager('.tabs-block');
-});
-
 function checkVisibility() {
   const blocks = document.querySelectorAll('.animate-section');
 
   blocks.forEach(block => {
+    if (block.hasAttribute('data-animated')) {
+      return;
+    }
+
     const rect = block.getBoundingClientRect();
     const isVisible = rect.top <= window.innerHeight && rect.bottom >= 0;
 
     if (isVisible) {
       setTimeout(() => {
         block.classList.add('animated');
+        block.setAttribute('data-animated', 'true');
       }, 500);
-    } else {
-      block.classList.remove('animated');
     }
   });
 }
 
-window.addEventListener('scroll', checkVisibility);
 window.addEventListener('load', checkVisibility);
+window.addEventListener('scroll', checkVisibility);
+
+
+const mobileMenuButton = document.querySelector('.mobile-menu-btn');
+const closeMenuButton = document.querySelector('.close-menu-button');
+const headerNav = document.querySelector('.header-nav');
+let isMenuOpen = false;
+
+function toggleMobileMenu() {
+  isMenuOpen = !isMenuOpen;
+
+  if (isMenuOpen) {
+    headerNav.classList.add('show');
+  } else {
+    headerNav.classList.remove('show');
+  }
+}
+
+function closeMobileMenu() {
+  isMenuOpen = false;
+  headerNav.classList.remove('show');
+}
+
+mobileMenuButton.addEventListener('click', toggleMobileMenu);
+closeMenuButton.addEventListener('click', closeMobileMenu);
+
+document.addEventListener('click', (e) => {
+  if (isMenuOpen &&
+      !headerNav.contains(e.target) &&
+      !mobileMenuButton.contains(e.target)) {
+    closeMobileMenu();
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && isMenuOpen) {
+    closeMobileMenu();
+  }
+});
+
+var swiper1 = new Swiper(".blog-slider", {
+  observer: true,
+  observeParents: true,
+  observeSlideChildren: true,
+  watchSlidesProgress: true,
+  pagination: {
+    el: ".blog-slider .swiper-pagination",
+  },
+  breakpoints: {
+    320: {
+      slidesPerView: 1,
+      spaceBetween: 20,
+    },
+    601: {
+      slidesPerView: 1,
+      spaceBetween: 20,
+    },
+    1025: {
+      slidesPerView: 3,
+      spaceBetween: 20,
+    },
+  }
+});
