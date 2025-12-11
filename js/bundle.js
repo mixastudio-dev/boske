@@ -75,6 +75,9 @@ document.addEventListener('DOMContentLoaded', function() {
       closeButtons = document.querySelectorAll('.modal-dialog .modal-close');
 
   var currentOpenModal = null;
+  var enterModalTimer = null;
+  var hasEnterModalShown = false;
+  var isExitModalShown = false;
 
   async function openModal(modalBtn) {
     return new Promise(resolve => {
@@ -93,6 +96,48 @@ document.addEventListener('DOMContentLoaded', function() {
         currentOpenModal = modalElem;
         resolve();
       }, 0);
+    });
+  }
+
+  async function openModalById(modalId) {
+    var modalElem = document.querySelector('.modal-dialog.' + modalId);
+
+    if (!modalElem) {
+      return;
+    }
+
+    if (modalId === 'modal-form-light-exit' && isExitModalShown) {
+      return;
+    }
+
+    if (modalId === 'modal-form-light-exit' && hasEnterModalShown) {
+      return;
+    }
+
+    if (currentOpenModal && currentOpenModal !== modalElem) {
+      closeModalDirectly(currentOpenModal);
+    }
+
+    overlay.classList.add('modal-open');
+    modalElem.style.display = 'flex';
+
+    return new Promise(resolve => {
+      setTimeout(function() {
+        modalElem.classList.add('modal-opening');
+        currentOpenModal = modalElem;
+
+        if (modalId === 'modal-form-light-enter') {
+          hasEnterModalShown = true;
+        } else if (modalId === 'modal-form-light-exit') {
+          isExitModalShown = true;
+
+          if (enterModalTimer) {
+            clearTimeout(enterModalTimer);
+          }
+        }
+
+        resolve();
+      }, 10);
     });
   }
 
@@ -128,7 +173,66 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  /* open modal */
+  function scheduleEnterModal() {
+    enterModalTimer = setTimeout(function() {
+      if (!hasEnterModalShown && !isExitModalShown) {
+        openModalById('modal-form-light-enter');
+      }
+    }, 300);
+  }
+
+  function setupExitModal() {
+    var exitAttempted = false;
+    var mouseInWindow = true;
+
+    document.addEventListener('mouseenter', function() {
+      mouseInWindow = true;
+    });
+
+    document.addEventListener('mouseleave', function(e) {
+      if (e.clientY <= 0) {
+        mouseInWindow = false;
+
+        setTimeout(function() {
+          if (!mouseInWindow && !isExitModalShown && !hasEnterModalShown && !exitAttempted) {
+            exitAttempted = true;
+            openModalById('modal-form-light-exit');
+
+            setTimeout(function() {
+              if (!currentOpenModal) {
+                window.closeWarningShown = true;
+              }
+            }, 100);
+          }
+        }, 100);
+      }
+    });
+
+    window.addEventListener('beforeunload', function(e) {
+      if (!isExitModalShown && !hasEnterModalShown && !exitAttempted && !window.closeWarningShown) {
+        e.preventDefault();
+        e.returnValue = '';
+
+        if (!currentOpenModal) {
+          openModalById('modal-form-light-exit');
+        }
+
+        exitAttempted = true;
+        return 'Уточнить детали проекта перед уходом?';
+      }
+    });
+  }
+
+  function init() {
+    document.querySelectorAll('.modal-dialog').forEach(function(modal) {
+      modal.classList.remove('modal-opening');
+      modal.style.display = 'none';
+    });
+
+    scheduleEnterModal();
+    setupExitModal();
+  }
+
   modalButtons.forEach(function(modalBtn) {
     modalBtn.addEventListener('click', async function(e) {
       e.preventDefault();
@@ -136,7 +240,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  /* close modal */
   closeButtons.forEach(function(closeBtn) {
     closeBtn.addEventListener('click', async function(e) {
       await closeModal(closeBtn);
@@ -153,8 +256,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  init();
 });
-
 
 document.addEventListener('DOMContentLoaded', function() {
   const videoContainers = document.querySelectorAll('.custom-video');
@@ -206,81 +309,118 @@ document.addEventListener('DOMContentLoaded', function() {
 class TabsManager {
   constructor(containerSelector) {
     this.container = document.querySelector(containerSelector);
-    if (!this.container) return;
+    if (!this.container) {
+      return;
+    }
 
     this.tabButtons = this.container.querySelectorAll('.nav-button');
     this.tabPanels = this.container.querySelectorAll('.tab-panel');
     this.isAnimating = false;
-    this.animationDuration = 200;
+    this.animationDuration = 400;
 
     this.init();
   }
 
   init() {
-    if (this.tabButtons.length === 0 || this.tabPanels.length === 0) return;
+    if (this.tabButtons.length === 0 || this.tabPanels.length === 0) {
+      return;
+    }
 
-    this.tabButtons[1].classList.add('active');
-    this.tabPanels[1].classList.add('active');
-
+    this.tabPanels.forEach(panel => {
+      panel.style.display = 'none';
+      panel.style.opacity = '0';
+      panel.style.visibility = 'hidden';
+    });
+    this.activateTab(1);
     this.tabButtons.forEach(button => {
       button.addEventListener('click', (e) => {
         if (this.isAnimating) return;
 
         const button = e.currentTarget;
-        this.switchTab(parseInt(button.dataset.tabId));
+        const tabId = parseInt(button.dataset.tabId);
+
+        if (!isNaN(tabId)) {
+          this.switchTab(tabId);
+        }
       });
     });
   }
 
   async switchTab(targetTabId) {
+    if (this.isAnimating) return;
+
     const targetButton = this.container.querySelector(`.nav-button[data-tab-id="${targetTabId}"]`);
     const targetPanel = this.container.querySelector(`.tab-panel[data-tab-id="${targetTabId}"]`);
 
-    if (!targetButton || !targetPanel) return;
-    if (targetButton.classList.contains('active')) return;
+    if (!targetButton || !targetPanel) {
+      return;
+    }
+
+    if (targetButton.classList.contains('active')) {
+      return;
+    }
 
     this.isAnimating = true;
 
     const activePanel = this.container.querySelector('.tab-panel.active');
+    const activeButton = this.container.querySelector('.nav-button.active');
 
     if (activePanel) {
-      activePanel.style.transition = `opacity ${this.animationDuration}ms ease, visibility ${this.animationDuration}ms ease`;
       activePanel.style.opacity = '0';
-      activePanel.style.visibility = 'hidden';
 
-      await this.wait(this.animationDuration);
+      await this.wait(this.animationDuration / 2);
 
       activePanel.classList.remove('active');
-      activePanel.style.transition = '';
-      activePanel.style.opacity = '';
-      activePanel.style.visibility = '';
+      activePanel.style.display = 'none';
+      activePanel.style.visibility = 'hidden';
     }
 
     this.tabButtons.forEach(btn => btn.classList.remove('active'));
 
     targetButton.classList.add('active');
 
-    targetPanel.classList.add('active');
-    targetPanel.style.transition = `opacity ${this.animationDuration}ms ease, visibility ${this.animationDuration}ms ease`;
-    targetPanel.style.opacity = '0';
+    targetPanel.style.display = 'block';
     targetPanel.style.visibility = 'visible';
+    targetPanel.classList.add('active');
 
     await this.wait(10);
+
     targetPanel.style.opacity = '1';
 
     await this.wait(this.animationDuration);
 
-    targetPanel.style.transition = '';
-    targetPanel.style.opacity = '';
-    targetPanel.style.visibility = '';
-
     this.isAnimating = false;
+  }
+
+  activateTab(tabId) {
+    const button = this.container.querySelector(`.nav-button[data-tab-id="${tabId}"]`);
+    const panel = this.container.querySelector(`.tab-panel[data-tab-id="${tabId}"]`);
+
+    if (button && panel) {
+      this.tabButtons.forEach(btn => btn.classList.remove('active'));
+      this.tabPanels.forEach(p => {
+        p.classList.remove('active');
+        p.style.display = 'none';
+        p.style.opacity = '0';
+        p.style.visibility = 'hidden';
+      });
+
+      button.classList.add('active');
+      panel.classList.add('active');
+      panel.style.display = 'block';
+      panel.style.opacity = '1';
+      panel.style.visibility = 'visible';
+    }
   }
 
   wait(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const tabsManager = new TabsManager('.tabs-block');
+});
 
 function checkVisibility() {
   const blocks = document.querySelectorAll('.animate-section');
