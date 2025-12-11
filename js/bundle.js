@@ -76,7 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var currentOpenModal = null;
   var enterModalTimer = null;
-  var hasEnterModalShown = false;
   var isExitModalShown = false;
 
   async function openModal(modalBtn) {
@@ -102,17 +101,9 @@ document.addEventListener('DOMContentLoaded', function() {
   async function openModalById(modalId) {
     var modalElem = document.querySelector('.modal-dialog.' + modalId);
 
-    if (!modalElem) {
-      return;
-    }
+    if (!modalElem) return;
 
-    if (modalId === 'modal-form-light-exit' && isExitModalShown) {
-      return;
-    }
-
-    if (modalId === 'modal-form-light-exit' && hasEnterModalShown) {
-      return;
-    }
+    if (modalId === 'modal-form-light-exit' && isExitModalShown) return;
 
     if (currentOpenModal && currentOpenModal !== modalElem) {
       closeModalDirectly(currentOpenModal);
@@ -121,104 +112,60 @@ document.addEventListener('DOMContentLoaded', function() {
     overlay.classList.add('modal-open');
     modalElem.style.display = 'flex';
 
-    return new Promise(resolve => {
-      setTimeout(function() {
-        modalElem.classList.add('modal-opening');
-        currentOpenModal = modalElem;
+    setTimeout(function() {
+      modalElem.classList.add('modal-opening');
+      currentOpenModal = modalElem;
 
-        if (modalId === 'modal-form-light-enter') {
-          hasEnterModalShown = true;
-        } else if (modalId === 'modal-form-light-exit') {
-          isExitModalShown = true;
-
-          if (enterModalTimer) {
-            clearTimeout(enterModalTimer);
-          }
-        }
-
-        resolve();
-      }, 10);
-    });
+      if (modalId === 'modal-form-light-exit') {
+        isExitModalShown = true;
+      }
+    }, 10);
   }
 
   async function closeModal(closeBtn) {
-    return new Promise(resolve => {
-      var modal = closeBtn.closest('.modal-dialog');
-      modal.classList.remove('modal-opening');
-      modal.classList.add('modal-closing');
+    var modal = closeBtn.closest('.modal-dialog');
+    modal.classList.remove('modal-opening');
+    modal.classList.add('modal-closing');
 
-      setTimeout(function() {
-        modal.classList.remove('modal-closing');
-        modal.style.display = 'none';
-        overlay.classList.remove('modal-open');
-        if (currentOpenModal === modal) {
-          currentOpenModal = null;
-        }
-        resolve();
-      }, 500);
-    });
+    setTimeout(function() {
+      modal.classList.remove('modal-closing');
+      modal.style.display = 'none';
+      overlay.classList.remove('modal-open');
+      if (currentOpenModal === modal) currentOpenModal = null;
+    }, 500);
   }
 
   function closeModalDirectly(modalElem) {
     modalElem.classList.remove('modal-opening');
     modalElem.style.display = 'none';
-
-    if (currentOpenModal === modalElem) {
-      currentOpenModal = null;
-    }
-
-    var anyModalOpen = document.querySelector('.modal-dialog[style*="display: flex"]');
-    if (!anyModalOpen) {
+    if (currentOpenModal === modalElem) currentOpenModal = null;
+    if (!document.querySelector('.modal-dialog[style*="display: flex"]')) {
       overlay.classList.remove('modal-open');
     }
   }
 
   function scheduleEnterModal() {
     enterModalTimer = setTimeout(function() {
-      if (!hasEnterModalShown && !isExitModalShown) {
-        openModalById('modal-form-light-enter');
-      }
+      openModalById('modal-form-light-enter');
     }, 30000);
   }
 
   function setupExitModal() {
-    var exitAttempted = false;
-    var mouseInWindow = true;
+    var showExitTimeout;
 
-    document.addEventListener('mouseenter', function() {
-      mouseInWindow = true;
-    });
-
-    document.addEventListener('mouseleave', function(e) {
-      if (e.clientY <= 0) {
-        mouseInWindow = false;
-
-        setTimeout(function() {
-          if (!mouseInWindow && !isExitModalShown && !hasEnterModalShown && !exitAttempted) {
-            exitAttempted = true;
+    document.addEventListener('mousemove', function(e) {
+      if (e.clientY < 10 && !isExitModalShown) {
+        if (!showExitTimeout) {
+          showExitTimeout = setTimeout(function() {
             openModalById('modal-form-light-exit');
-
-            setTimeout(function() {
-              if (!currentOpenModal) {
-                window.closeWarningShown = true;
-              }
-            }, 100);
-          }
-        }, 100);
-      }
-    });
-
-    window.addEventListener('beforeunload', function(e) {
-      if (!isExitModalShown && !hasEnterModalShown && !exitAttempted && !window.closeWarningShown) {
-        e.preventDefault();
-        e.returnValue = '';
-
-        if (!currentOpenModal) {
-          openModalById('modal-form-light-exit');
+            showExitTimeout = null;
+          }, 300);
         }
-
-        exitAttempted = true;
-        return 'Уточнить детали проекта перед уходом?';
+      } else {
+        if (showExitTimeout) {
+          clearTimeout(showExitTimeout);
+          showExitTimeout = null;
+        }
       }
     });
   }
@@ -248,11 +195,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   document.querySelectorAll('.modal-dialog').forEach(function(item) {
     item.addEventListener('click', async function(e) {
-      if (e.target !== e.currentTarget) {
-        return;
-      } else {
-        await closeModal(this);
-      }
+      if (e.target !== e.currentTarget) return;
+      await closeModal(this);
     });
   });
 
