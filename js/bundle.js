@@ -76,7 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var currentOpenModal = null;
   var enterModalTimer = null;
-  var isExitModalShown = false;
 
   async function openModal(modalBtn) {
     return new Promise(resolve => {
@@ -103,8 +102,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!modalElem) return;
 
-    if (modalId === 'modal-form-light-exit' && isExitModalShown) return;
-
     if (currentOpenModal && currentOpenModal !== modalElem) {
       closeModalDirectly(currentOpenModal);
     }
@@ -115,10 +112,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
       modalElem.classList.add('modal-opening');
       currentOpenModal = modalElem;
-
-      if (modalId === 'modal-form-light-exit') {
-        isExitModalShown = true;
-      }
     }, 10);
   }
 
@@ -150,26 +143,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 30000);
   }
 
-  function setupExitModal() {
-    var showExitTimeout;
-
-    document.addEventListener('mousemove', function(e) {
-      if (e.clientY < 10 && !isExitModalShown) {
-        if (!showExitTimeout) {
-          showExitTimeout = setTimeout(function() {
-            openModalById('modal-form-light-exit');
-            showExitTimeout = null;
-          }, 300);
-        }
-      } else {
-        if (showExitTimeout) {
-          clearTimeout(showExitTimeout);
-          showExitTimeout = null;
-        }
-      }
-    });
-  }
-
   function init() {
     document.querySelectorAll('.modal-dialog').forEach(function(modal) {
       modal.classList.remove('modal-opening');
@@ -177,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     scheduleEnterModal();
-    setupExitModal();
   }
 
   modalButtons.forEach(function(modalBtn) {
