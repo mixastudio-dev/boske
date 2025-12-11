@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!hasEnterModalShown && !isExitModalShown) {
         openModalById('modal-form-light-enter');
       }
-    }, 300);
+    }, 3000);
   }
 
   function setupExitModal() {
