@@ -77,6 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var currentOpenModal = null;
   var enterModalTimer = null;
   var isExitModalShown = false;
+  var hasEnterModalShown = localStorage.getItem('enterModalShown') === 'true';
 
   async function openModal(modalBtn) {
     return new Promise(resolve => {
@@ -118,6 +119,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
       if (modalId === 'modal-form-light-exit') {
         isExitModalShown = true;
+      } else if (modalId === 'modal-form-light-enter') {
+        localStorage.setItem('enterModalShown', 'true');
+        hasEnterModalShown = true;
       }
     }, 10);
   }
@@ -145,8 +149,12 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function scheduleEnterModal() {
+    if (hasEnterModalShown) return;
+
     enterModalTimer = setTimeout(function() {
-      openModalById('modal-form-light-enter');
+      if (!hasEnterModalShown) {
+        openModalById('modal-form-light-enter');
+      }
     }, 30000);
   }
 
