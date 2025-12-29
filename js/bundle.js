@@ -178,6 +178,29 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  function initCookieModal() {
+    const cookieAccepted = localStorage.getItem('cookieAccepted');
+    const cookieModal = document.querySelector('.modal-dialog.modal-cookie');
+    const acceptBtn = document.querySelector('.btn-accept');
+
+    if (!cookieAccepted && cookieModal && acceptBtn) {
+      setTimeout(() => {
+        openModalById('modal-cookie');
+      }, 1000);
+
+      acceptBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        localStorage.setItem('cookieAccepted', 'true');
+        const closeBtn = cookieModal.querySelector('.modal-close');
+        if (closeBtn) {
+          closeModal(closeBtn);
+        } else {
+          closeModalDirectly(cookieModal);
+        }
+      });
+    }
+  }
+
   function init() {
     document.querySelectorAll('.modal-dialog').forEach(function(modal) {
       modal.classList.remove('modal-opening');
@@ -186,6 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     scheduleEnterModal();
     setupExitModal();
+    initCookieModal();
   }
 
   modalButtons.forEach(function(modalBtn) {
