@@ -77,7 +77,55 @@ document.addEventListener('DOMContentLoaded', function() {
   var currentOpenModal = null;
   var enterModalTimer = null;
   var isExitModalShown = false;
-  var hasEnterModalShown = localStorage.getItem('enterModalShown') === 'true';
+
+  var hasEnterModalShownInSession = false;
+
+  function getCookie(name) {
+    const matches = document.cookie.match(new RegExp(
+        "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : undefined;
+  }
+
+  function setCookie(name, value, options = {}) {
+    options = {
+      path: '/',
+      ...options
+    };
+
+    if (options.expires instanceof Date) {
+      options.expires = options.expires.toUTCString();
+    }
+
+    let updatedCookie = encodeURIComponent(name) + "=" + encodeURIComponent(value);
+
+    for (let optionKey in options) {
+      updatedCookie += "; " + optionKey;
+      let optionValue = options[optionKey];
+      if (optionValue !== true) {
+        updatedCookie += "=" + optionValue;
+      }
+    }
+
+    document.cookie = updatedCookie;
+  }
+
+  function getSessionStorageItem(key) {
+    try {
+      return sessionStorage.getItem(key);
+    } catch (e) {
+      console.warn('sessionStorage недоступен:', e);
+      return null;
+    }
+  }
+
+  function setSessionStorageItem(key, value) {
+    try {
+      sessionStorage.setItem(key, value);
+    } catch (e) {
+      console.warn('Ошибка записи в sessionStorage:', e);
+    }
+  }
 
   async function openModal(modalBtn) {
     return new Promise(resolve => {
@@ -120,8 +168,8 @@ document.addEventListener('DOMContentLoaded', function() {
       if (modalId === 'modal-form-light-exit') {
         isExitModalShown = true;
       } else if (modalId === 'modal-form-light-enter') {
-        localStorage.setItem('enterModalShown', 'true');
-        hasEnterModalShown = true;
+        setSessionStorageItem('enterModalShownInSession', 'true');
+        hasEnterModalShownInSession = true;
       }
     }, 10);
   }
@@ -149,10 +197,14 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function scheduleEnterModal() {
-    if (hasEnterModalShown) return;
+    var wasShownInSession = getSessionStorageItem('enterModalShownInSession');
+
+    if (wasShownInSession === 'true' || hasEnterModalShownInSession) {
+      return;
+    }
 
     enterModalTimer = setTimeout(function() {
-      if (!hasEnterModalShown) {
+      if (!hasEnterModalShownInSession && getSessionStorageItem('enterModalShownInSession') !== 'true') {
         openModalById('modal-form-light-enter');
       }
     }, 30000);
@@ -179,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function initCookieModal() {
-    const cookieAccepted = localStorage.getItem('cookieAccepted');
+    const cookieAccepted = getCookie('cookieAccepted');
     const cookieModal = document.querySelector('.modal-dialog.modal-cookie');
     const acceptBtn = document.querySelector('.btn-accept');
 
@@ -190,7 +242,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
       acceptBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        localStorage.setItem('cookieAccepted', 'true');
+        setCookie('cookieAccepted', 'true', {
+          expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+          secure: true,
+          samesite: 'strict'
+        });
+
         const closeBtn = cookieModal.querySelector('.modal-close');
         if (closeBtn) {
           closeModal(closeBtn);
@@ -206,6 +263,8 @@ document.addEventListener('DOMContentLoaded', function() {
       modal.classList.remove('modal-opening');
       modal.style.display = 'none';
     });
+
+    hasEnterModalShownInSession = getSessionStorageItem('enterModalShownInSession') === 'true';
 
     scheduleEnterModal();
     setupExitModal();
