@@ -77,8 +77,10 @@ document.addEventListener('DOMContentLoaded', function() {
   var currentOpenModal = null;
   var enterModalTimer = null;
   var isExitModalShown = false;
-
   var hasEnterModalShownInSession = false;
+
+  var exitModalShownForScroll = false;
+  var scrollCheckTimeout = null;
 
   function getCookie(name) {
     const matches = document.cookie.match(new RegExp(
@@ -114,7 +116,6 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
       return sessionStorage.getItem(key);
     } catch (e) {
-      console.warn('sessionStorage недоступен:', e);
       return null;
     }
   }
@@ -123,8 +124,12 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
       sessionStorage.setItem(key, value);
     } catch (e) {
-      console.warn('Ошибка записи в sessionStorage:', e);
     }
+  }
+
+  function isMobileOrTablet() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        (window.innerWidth <= 1024);
   }
 
   async function openModal(modalBtn) {
@@ -213,21 +218,64 @@ document.addEventListener('DOMContentLoaded', function() {
   function setupExitModal() {
     var showExitTimeout;
 
-    document.addEventListener('mousemove', function(e) {
-      if (e.clientY < 10 && !isExitModalShown) {
-        if (!showExitTimeout) {
-          showExitTimeout = setTimeout(function() {
-            openModalById('modal-form-light-exit');
+    if (!isMobileOrTablet()) {
+      document.addEventListener('mousemove', function(e) {
+        if (e.clientY < 10 && !isExitModalShown) {
+          if (!showExitTimeout) {
+            showExitTimeout = setTimeout(function() {
+              openModalById('modal-form-light-exit');
+              showExitTimeout = null;
+            }, 300);
+          }
+        } else {
+          if (showExitTimeout) {
+            clearTimeout(showExitTimeout);
             showExitTimeout = null;
-          }, 300);
+          }
         }
-      } else {
-        if (showExitTimeout) {
-          clearTimeout(showExitTimeout);
-          showExitTimeout = null;
+      });
+    }
+    else {
+      setupMobileExitModal();
+    }
+  }
+
+  function setupMobileExitModal() {
+    if (isExitModalShown || exitModalShownForScroll) return;
+
+    function checkScrollPosition() {
+      if (isExitModalShown || exitModalShownForScroll) return;
+
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      var scrollHeight = Math.max(
+          document.body.scrollHeight,
+          document.documentElement.scrollHeight,
+          document.body.offsetHeight,
+          document.documentElement.offsetHeight,
+          document.body.clientHeight,
+          document.documentElement.clientHeight
+      );
+      var windowHeight = window.innerHeight;
+
+      if (scrollTop + windowHeight >= scrollHeight - 100) {
+        if (!isExitModalShown && !exitModalShownForScroll) {
+          exitModalShownForScroll = true;
+          isExitModalShown = true;
+          openModalById('modal-form-light-exit');
         }
       }
-    });
+    }
+
+    function debounceCheckScroll() {
+      if (scrollCheckTimeout) {
+        clearTimeout(scrollCheckTimeout);
+      }
+      scrollCheckTimeout = setTimeout(checkScrollPosition, 150);
+    }
+
+    window.addEventListener('scroll', debounceCheckScroll, { passive: true });
+
+    setTimeout(checkScrollPosition, 1000);
   }
 
   function initCookieModal() {
