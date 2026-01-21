@@ -14,6 +14,89 @@ if (header) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  const menuItems = document.querySelectorAll('.menu-item-has-children');
+  let hoverTimer;
+
+  function setupMenu() {
+    const isDesktop = window.innerWidth >= 1025;
+
+    menuItems.forEach(item => {
+      const subMenu = item.querySelector('.sub-menu');
+
+      item.classList.remove('hover-active', 'accordion-active');
+      item.onmouseenter = item.onmouseleave = item.onclick = null;
+
+      if (subMenu) {
+        subMenu.style.cssText = '';
+      }
+
+      if (isDesktop) {
+        item.addEventListener('mouseenter', () => {
+          clearTimeout(hoverTimer);
+          item.classList.add('hover-active');
+        });
+
+        item.addEventListener('mouseleave', () => {
+          hoverTimer = setTimeout(() => {
+            item.classList.remove('hover-active');
+          }, 300);
+        });
+
+        if (subMenu) {
+          subMenu.addEventListener('mouseenter', () => {
+            clearTimeout(hoverTimer);
+            item.classList.add('hover-active');
+          });
+
+          subMenu.addEventListener('mouseleave', () => {
+            hoverTimer = setTimeout(() => {
+              item.classList.remove('hover-active');
+            }, 300);
+          });
+        }
+      } else {
+        if (subMenu) {
+          subMenu.style.overflow = 'hidden';
+          subMenu.style.transition = 'max-height 0.3s ease';
+          subMenu.style.maxHeight = '0';
+        }
+
+        item.addEventListener('click', function(e) {
+          if (e.target.closest('a')) e.preventDefault();
+
+          const wasActive = this.classList.contains('accordion-active');
+
+          menuItems.forEach(other => {
+            if (other !== this) {
+              other.classList.remove('accordion-active');
+              const otherSub = other.querySelector('.sub-menu');
+              if (otherSub) otherSub.style.maxHeight = '0';
+            }
+          });
+
+          this.classList.toggle('accordion-active');
+
+          if (subMenu) {
+            subMenu.style.maxHeight = this.classList.contains('accordion-active')
+                ? subMenu.scrollHeight + 'px'
+                : '0';
+          }
+        });
+      }
+    });
+  }
+
+  setupMenu();
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    clearTimeout(hoverTimer);
+    resizeTimer = setTimeout(setupMenu, 250);
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
   const accordionItems = document.querySelectorAll('.accordion-item');
 
   if (accordionItems) {
