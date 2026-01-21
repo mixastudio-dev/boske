@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         item.addEventListener('mouseleave', () => {
           hoverTimer = setTimeout(() => {
             item.classList.remove('hover-active');
-          }, 300);
+          }, 500);
         });
 
         if (subMenu) {
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
           subMenu.addEventListener('mouseleave', () => {
             hoverTimer = setTimeout(() => {
               item.classList.remove('hover-active');
-            }, 300);
+            }, 500);
           });
         }
       } else {
