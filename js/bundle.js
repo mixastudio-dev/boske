@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         item.addEventListener('mouseleave', () => {
           hoverTimer = setTimeout(() => {
             item.classList.remove('hover-active');
-          }, 500);
+          }, 300);
         });
 
         if (subMenu) {
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
           subMenu.addEventListener('mouseleave', () => {
             hoverTimer = setTimeout(() => {
               item.classList.remove('hover-active');
-            }, 500);
+            }, 300);
           });
         }
       } else {
@@ -632,5 +632,3 @@ var swiper1 = new Swiper(".blog-slider", {
     },
   }
 });
-
-
