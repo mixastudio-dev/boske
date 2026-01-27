@@ -33,6 +33,15 @@ document.addEventListener('DOMContentLoaded', function() {
       if (isDesktop) {
         item.addEventListener('mouseenter', () => {
           clearTimeout(hoverTimer);
+
+          menuItems.forEach(otherItem => {
+            if (otherItem !== item) {
+              otherItem.classList.remove('hover-active');
+              const otherSubMenu = otherItem.querySelector('.sub-menu');
+              if (otherSubMenu) otherSubMenu.style.cssText = '';
+            }
+          });
+
           item.classList.add('hover-active');
         });
 
@@ -631,4 +640,43 @@ var swiper1 = new Swiper(".blog-slider", {
       spaceBetween: 20,
     },
   }
+});
+
+var swiper2 = new Swiper(".gallery-slider", {
+  observer: true,
+  observeParents: true,
+  observeSlideChildren: true,
+  watchSlidesProgress: true,
+  navigation: {
+    nextEl: ".content-block-slider .swiper-button-next",
+    prevEl: ".content-block-slider .swiper-button-prev",
+  },
+  breakpoints: {
+    320: {
+      slidesPerView: 1.4,
+      spaceBetween: 20,
+    },
+    601: {
+      slidesPerView: 1.75,
+      spaceBetween: 20,
+    },
+    1025: {
+      slidesPerView: 2.35,
+      spaceBetween: 20,
+    },
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const imageWrappers = document.querySelectorAll('.images-wrapper');
+
+  imageWrappers.forEach(wrapper => {
+    const images = wrapper.querySelectorAll('img');
+
+    if (images.length === 1) {
+      wrapper.classList.add('single-image');
+    } else if (images.length === 2) {
+      wrapper.classList.add('double-image');
+    }
+  });
 });
