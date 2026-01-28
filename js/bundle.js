@@ -15,7 +15,6 @@ if (header) {
 
 document.addEventListener('DOMContentLoaded', function() {
   const menuItems = document.querySelectorAll('.menu-item-has-children');
-  let hoverTimer;
 
   function setupMenu() {
     const isDesktop = window.innerWidth >= 1025;
@@ -30,65 +29,62 @@ document.addEventListener('DOMContentLoaded', function() {
         subMenu.style.cssText = '';
       }
 
-      if (isDesktop) {
-        item.addEventListener('mouseenter', () => {
-          clearTimeout(hoverTimer);
+      const link = item.querySelector('a');
+      if (link) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
 
-          menuItems.forEach(otherItem => {
-            if (otherItem !== item) {
+          if (isDesktop) {
+            const wasActive = item.classList.contains('hover-active');
+
+            menuItems.forEach(otherItem => {
               otherItem.classList.remove('hover-active');
               const otherSubMenu = otherItem.querySelector('.sub-menu');
               if (otherSubMenu) otherSubMenu.style.cssText = '';
+            });
+
+            if (!wasActive) {
+              item.classList.add('hover-active');
             }
-          });
+          } else {
+            const wasActive = item.classList.contains('accordion-active');
 
-          item.classList.add('hover-active');
-        });
+            menuItems.forEach(other => {
+              if (other !== item) {
+                other.classList.remove('accordion-active');
+                const otherSub = other.querySelector('.sub-menu');
+                if (otherSub) otherSub.style.maxHeight = '0';
+              }
+            });
 
-        item.addEventListener('mouseleave', () => {
-          hoverTimer = setTimeout(() => {
-            item.classList.remove('hover-active');
-          }, 500);
-        });
+            item.classList.toggle('accordion-active');
 
-        if (subMenu) {
-          subMenu.addEventListener('mouseenter', () => {
-            clearTimeout(hoverTimer);
-            item.classList.add('hover-active');
-          });
-
-          subMenu.addEventListener('mouseleave', () => {
-            hoverTimer = setTimeout(() => {
-              item.classList.remove('hover-active');
-            }, 500);
-          });
-        }
-      } else {
-        if (subMenu) {
-          subMenu.style.overflow = 'hidden';
-          subMenu.style.transition = 'max-height 0.3s ease';
-          subMenu.style.maxHeight = '0';
-        }
-
-        item.addEventListener('click', function(e) {
-          if (e.target.closest('a')) e.preventDefault();
-
-          const wasActive = this.classList.contains('accordion-active');
-
-          menuItems.forEach(other => {
-            if (other !== this) {
-              other.classList.remove('accordion-active');
-              const otherSub = other.querySelector('.sub-menu');
-              if (otherSub) otherSub.style.maxHeight = '0';
+            if (subMenu) {
+              subMenu.style.maxHeight = item.classList.contains('accordion-active')
+                  ? subMenu.scrollHeight + 'px'
+                  : '0';
             }
-          });
+          }
+        });
+      }
 
-          this.classList.toggle('accordion-active');
+      if (!isDesktop && subMenu) {
+        subMenu.style.overflow = 'hidden';
+        subMenu.style.transition = 'max-height 0.3s ease';
+        subMenu.style.maxHeight = '0';
+      }
+    });
 
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.menu-item-has-children')) {
+        menuItems.forEach(item => {
+          item.classList.remove('hover-active', 'accordion-active');
+          const subMenu = item.querySelector('.sub-menu');
           if (subMenu) {
-            subMenu.style.maxHeight = this.classList.contains('accordion-active')
-                ? subMenu.scrollHeight + 'px'
-                : '0';
+            subMenu.style.cssText = '';
+            if (!isDesktop) {
+              subMenu.style.maxHeight = '0';
+            }
           }
         });
       }
@@ -100,7 +96,6 @@ document.addEventListener('DOMContentLoaded', function() {
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    clearTimeout(hoverTimer);
     resizeTimer = setTimeout(setupMenu, 250);
   });
 });
