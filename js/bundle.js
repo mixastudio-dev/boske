@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class="file-text">Прикрепить проект</div>
           <div class="file-icon"></div>
       `;
-    
+
     fileWrap.appendChild(customFile);
 
     fileInput.addEventListener('change', function(e) {
