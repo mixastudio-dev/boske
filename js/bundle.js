@@ -680,13 +680,22 @@ var swiper4 = new Swiper(".gallery-slider-main", {
   spaceBetween: 10,
   slidesPerView: 1,
   effect: "fade",
+  fadeEffect: {
+    crossFade: true
+  },
   observer: true,
   observeParents: true,
   watchSlidesProgress: true,
+  touchEventsTarget: 'container',
+  simulateTouch: true,
+  touchRatio: 1,
+  touchAngle: 45,
+  grabCursor: true,
   navigation: {
     nextEl: ".gallery-slider-main .swiper-button-next",
     prevEl: ".gallery-slider-main .swiper-button-prev",
   },
+  slideToClickedSlide: true,
 });
 
 var swiper3 = new Swiper(".gallery-slider-thumbs", {
@@ -695,6 +704,11 @@ var swiper3 = new Swiper(".gallery-slider-thumbs", {
   watchSlidesProgress: true,
   observer: true,
   observeParents: true,
+  simulateTouch: true,
+  touchRatio: 1,
+  touchAngle: 45,
+  grabCursor: true,
+  slideToClickedSlide: true,
   breakpoints: {
     0: {
       slidesPerView: 5,
