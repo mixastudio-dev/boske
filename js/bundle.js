@@ -680,22 +680,13 @@ var swiper4 = new Swiper(".gallery-slider-main", {
   spaceBetween: 10,
   slidesPerView: 1,
   effect: "fade",
-  fadeEffect: {
-    crossFade: true
-  },
   observer: true,
   observeParents: true,
   watchSlidesProgress: true,
-  touchEventsTarget: 'container',
-  simulateTouch: true,
-  touchRatio: 1,
-  touchAngle: 45,
-  grabCursor: true,
   navigation: {
     nextEl: ".gallery-slider-main .swiper-button-next",
     prevEl: ".gallery-slider-main .swiper-button-prev",
   },
-  slideToClickedSlide: true,
 });
 
 var swiper3 = new Swiper(".gallery-slider-thumbs", {
@@ -704,11 +695,6 @@ var swiper3 = new Swiper(".gallery-slider-thumbs", {
   watchSlidesProgress: true,
   observer: true,
   observeParents: true,
-  simulateTouch: true,
-  touchRatio: 1,
-  touchAngle: 45,
-  grabCursor: true,
-  slideToClickedSlide: true,
   breakpoints: {
     0: {
       slidesPerView: 5,
@@ -718,8 +704,22 @@ var swiper3 = new Swiper(".gallery-slider-thumbs", {
       slidesPerView: 10,
       spaceBetween: 20,
     },
+  },
+  on: {
+    click: function() {
+      var clickedIndex = this.clickedIndex;
+
+      swiper4.slideTo(clickedIndex);
+
+      this.slideTo(clickedIndex);
+    }
   }
 });
 
-swiper4.controller.control = swiper3;
-swiper3.controller.control = swiper4;
+swiper4.on('slideChange', function() {
+  swiper3.slideTo(swiper4.activeIndex);
+});
+
+swiper3.on('slideChange', function() {
+  swiper4.slideTo(swiper3.activeIndex);
+});
