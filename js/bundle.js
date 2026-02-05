@@ -676,22 +676,36 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-var swiper3 = new Swiper(".gallery-slider-thumbs", {
-  spaceBetween: 20,
-  slidesPerView: 10,
-  watchSlidesProgress: true,
-});
-
 var swiper4 = new Swiper(".gallery-slider-main", {
-  loop: true,
   spaceBetween: 10,
   slidesPerView: 1,
   effect: "fade",
+  observer: true,
+  observeParents: true,
+  watchSlidesProgress: true,
   navigation: {
     nextEl: ".gallery-slider-main .swiper-button-next",
     prevEl: ".gallery-slider-main .swiper-button-prev",
   },
-  thumbs: {
-    swiper: swiper3,
-  },
 });
+
+var swiper3 = new Swiper(".gallery-slider-thumbs", {
+  spaceBetween: 20,
+  slidesPerView: 10,
+  watchSlidesProgress: true,
+  observer: true,
+  observeParents: true,
+  breakpoints: {
+    0: {
+      slidesPerView: 5,
+      spaceBetween: 10,
+    },
+    1025: {
+      slidesPerView: 10,
+      spaceBetween: 20,
+    },
+  }
+});
+
+swiper4.controller.control = swiper3;
+swiper3.controller.control = swiper4;
