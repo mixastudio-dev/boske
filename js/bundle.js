@@ -675,3 +675,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+var swiper3 = new Swiper(".gallery-slider-thumbs", {
+  spaceBetween: 20,
+  slidesPerView: 10,
+  watchSlidesProgress: true,
+});
+
+var swiper4 = new Swiper(".gallery-slider-main", {
+  loop: true,
+  spaceBetween: 10,
+  slidesPerView: 1,
+  effect: "fade",
+  navigation: {
+    nextEl: ".gallery-slider-main .swiper-button-next",
+    prevEl: ".gallery-slider-main .swiper-button-prev",
+  },
+  thumbs: {
+    swiper: swiper3,
+  },
+});
